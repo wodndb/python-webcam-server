@@ -175,6 +175,5 @@ if __name__ == "__main__":
     # app.router.add_get("/", index)
     # app.router.add_get("/client.js", javascript)
     app.router.add_post("/offer", offer)
-    app.router.add_post("/shutdown", on_shutdown)
     app.router.add_post("/stop", stop_video)
     web.run_app(app, host=args.host, port=args.port, ssl_context=ssl_context)
