@@ -94,7 +94,7 @@ export default function Home() {
   }
 
   function turnOff() {
-    fetch("http://localhost:3000/api/stop", {
+    fetch("http://localhost:3000/api/turnoff", {
       headers: {
         "Content-Type": "application/json",
       },
@@ -120,7 +120,7 @@ export default function Home() {
       <button id="stop" className="px-[16px] py-[8px]" onClick={stop}>
         Stop
       </button>
-      <button id="stop" className="px-[16px] py-[8px]" onClick={turnOff}>
+      <button id="turnoff" className="px-[16px] py-[8px]" onClick={turnOff}>
         Turn off
       </button>
 

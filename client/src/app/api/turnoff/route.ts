@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const apiResult = await fetch("http://127.0.0.1:8080/stop", {
+  const apiResult = await fetch("http://127.0.0.1:8080/turnoff", {
     headers: {
       "Content-Type": "application/json",
     },

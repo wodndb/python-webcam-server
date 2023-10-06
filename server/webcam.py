@@ -122,7 +122,7 @@ async def on_shutdown(app):
     await clear_peer_connections()
 
 
-async def stop_video(request):
+async def turnoff(request):
     global relay, webcam
     webcam.video.stop()
     webcam = None
@@ -175,5 +175,5 @@ if __name__ == "__main__":
     # app.router.add_get("/", index)
     # app.router.add_get("/client.js", javascript)
     app.router.add_post("/offer", offer)
-    app.router.add_post("/stop", stop_video)
+    app.router.add_post("/turnoff", turnoff)
     web.run_app(app, host=args.host, port=args.port, ssl_context=ssl_context)
