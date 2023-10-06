@@ -110,11 +110,24 @@ async def offer(request):
 pcs = set()
 
 
-async def on_shutdown(app):
-    # close peer connections
+async def clear_peer_connections():
     coros = [pc.close() for pc in pcs]
     await asyncio.gather(*coros)
     pcs.clear()
+
+
+async def on_shutdown(app):
+    # close peer connections
+    print("close pc")
+    await clear_peer_connections()
+
+
+async def stop_video(request):
+    global relay, webcam
+    webcam.video.stop()
+    webcam = None
+    relay = None
+    await clear_peer_connections()
 
 
 if __name__ == "__main__":
@@ -162,4 +175,6 @@ if __name__ == "__main__":
     # app.router.add_get("/", index)
     # app.router.add_get("/client.js", javascript)
     app.router.add_post("/offer", offer)
+    app.router.add_post("/shutdown", on_shutdown)
+    app.router.add_post("/stop", stop_video)
     web.run_app(app, host=args.host, port=args.port, ssl_context=ssl_context)

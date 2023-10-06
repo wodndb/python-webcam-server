@@ -14,10 +14,10 @@ export default function Home() {
     pc.addTransceiver("audio", { direction: "recvonly" });
     return pc
       .createOffer()
-      .then(function (offer) {
+      .then((offer) => {
         return pc?.setLocalDescription(offer);
       })
-      .then(function () {
+      .then(() => {
         // wait for ICE gathering to complete
         return new Promise<void>((resolve) => {
           if (pc?.iceGatheringState === "complete") {
@@ -33,7 +33,7 @@ export default function Home() {
           }
         });
       })
-      .then(function () {
+      .then(() => {
         var offer = pc?.localDescription;
         return fetch("http://localhost:3000/api/offer", {
           body: JSON.stringify({
@@ -46,13 +46,13 @@ export default function Home() {
           method: "POST",
         });
       })
-      .then(function (response) {
+      .then((response) => {
         return response.json();
       })
-      .then(function (answer) {
+      .then((answer) => {
         return pc?.setRemoteDescription(answer);
       })
-      .catch(function (e) {
+      .catch((e) => {
         alert(e);
       });
   }
@@ -88,9 +88,19 @@ export default function Home() {
     //document.getElementById("stop").style.display = "none";
 
     // close peer connection
-    setTimeout(function () {
+    setTimeout(() => {
       pc?.close();
     }, 500);
+  }
+
+  function turnOff() {
+    fetch("http://localhost:3000/api/stop", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    });
+    pc = null;
   }
 
   return (
@@ -109,6 +119,9 @@ export default function Home() {
       </button>
       <button id="stop" className="px-[16px] py-[8px]" onClick={stop}>
         Stop
+      </button>
+      <button id="stop" className="px-[16px] py-[8px]" onClick={turnOff}>
+        Turn off
       </button>
 
       <div id="media">

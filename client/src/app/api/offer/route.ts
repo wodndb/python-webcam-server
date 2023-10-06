@@ -11,6 +11,8 @@ export async function POST(request: NextRequest) {
     method: "POST",
   });
 
+  console.log(apiResult);
+
   const offer = await apiResult.json();
 
   return Response.json(offer);
