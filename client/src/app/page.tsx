@@ -25,6 +25,7 @@ export default function Home() {
   const [videoTransform, setVideoTransform] = useState<VideoTransform>("none");
   const [dataChannelParams, setDataChannelParams] = useState<string>("{}");
   const [videoResolution, setVideoResolution] = useState<string>("");
+  const pcRef = useRef<RTCPeerConnection | null>(null);
 
   const [logs, setLogs] = useState<RtcLogs>({
     dataChannel: "",
@@ -33,7 +34,6 @@ export default function Home() {
     signaling: "",
   });
 
-  var pc: RTCPeerConnection | null = null;
   var dc: RTCDataChannel | null = null;
   var dcInterval: NodeJS.Timeout | null = null;
 
@@ -46,7 +46,7 @@ export default function Home() {
       config.iceServers = [{ urls: ["stun:stun.l.google.com:19302"] }];
     }
 
-    pc = new RTCPeerConnection(config);
+    const pc = new RTCPeerConnection(config);
 
     // register some listeners to help debugging
     pc.addEventListener(
@@ -54,7 +54,7 @@ export default function Home() {
       () => {
         setLogs((logs) => ({
           ...logs,
-          iceGathering: logs.iceGathering + " -> " + pc?.iceGatheringState,
+          iceGathering: logs.iceGathering + " -> " + pc.iceGatheringState,
         }));
       },
       false
@@ -65,8 +65,7 @@ export default function Home() {
       () => {
         setLogs((logs) => ({
           ...logs,
-          iceConnectionLog:
-            logs.iceConnection + " -> " + pc?.iceConnectionState,
+          iceConnectionLog: logs.iceConnection + " -> " + pc.iceConnectionState,
         }));
       },
       false
@@ -77,7 +76,7 @@ export default function Home() {
       () => {
         setLogs((logs) => ({
           ...logs,
-          signalingLog: logs.signaling + " -> " + pc?.signalingState,
+          signalingLog: logs.signaling + " -> " + pc.signalingState,
         }));
       },
       false
@@ -98,28 +97,29 @@ export default function Home() {
   }
 
   function negotiate() {
+    const pc = pcRef.current;
     if (pc === null) return;
     pc.addTransceiver("video", { direction: "recvonly" });
     pc.addTransceiver("audio", { direction: "recvonly" });
     return pc
       .createOffer()
       .then((offer) => {
-        return pc?.setLocalDescription(offer);
+        return pc.setLocalDescription(offer);
       })
       .then(() => {
         console.log("Generate new promise");
         // wait for ICE gathering to complete
         return new Promise<void>((resolve) => {
-          if (pc?.iceGatheringState === "complete") {
+          if (pc.iceGatheringState === "complete") {
             resolve();
           } else {
             const checkState = () => {
-              if (pc?.iceGatheringState === "complete") {
+              if (pc.iceGatheringState === "complete") {
                 pc.removeEventListener("icegatheringstatechange", checkState);
                 resolve();
               }
             };
-            pc?.addEventListener("icegatheringstatechange", checkState);
+            pc.addEventListener("icegatheringstatechange", checkState);
           }
         });
       })
@@ -171,7 +171,7 @@ export default function Home() {
   }
 
   function start() {
-    pc = createPeerConnection();
+    pcRef.current = createPeerConnection();
     var time_start: number | null = null;
 
     function current_stamp() {
@@ -186,7 +186,7 @@ export default function Home() {
     if (useDataChannel) {
       var parameters = JSON.parse(dataChannelParams);
 
-      dc = pc.createDataChannel("chat", parameters);
+      dc = pcRef.current.createDataChannel("chat", parameters);
       dc.onclose = () => {
         if (dcInterval === null) return;
         clearInterval(dcInterval);
@@ -255,7 +255,7 @@ export default function Home() {
 
     // close peer connection
     setTimeout(() => {
-      pc?.close();
+      pcRef.current?.close();
       console.log("Try to close peer connection");
     }, 500);
   }
@@ -267,7 +267,7 @@ export default function Home() {
       },
       method: "POST",
     });
-    pc = null;
+    pcRef.current = null;
   }
 
   return (
