@@ -13,3 +13,11 @@ pip3 install -r requirements.txt
 ```
 python3 webcam.py
 ```
+
+## 공부용 코드
+
+- cv_webcam_test.py
+  - OpenCV로 웹캠 연결하여 출력하는 테스트.
+- mjpeg_http_test.py
+  - http로 mjpeg을 전송하여 OpenCV로 받은 웹캠 영상을 스트리밍하는 테스트.
+  - 실행 후 브라우저에서 http://localhost:8080/cam 에 접속하여 웹캠 확인 가능.
