@@ -16,12 +16,25 @@ from aiortc.contrib.media import MediaPlayer, MediaRelay
 from aiortc.rtcrtpsender import RTCRtpSender
 from av import VideoFrame
 
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+
+from draw_landmarks import draw_landmarks_on_image
+
 ROOT = os.path.dirname(__file__)
 
 logger = logging.getLogger("pc")
 relay = None
 webcam = None
 pcs = set()
+
+base_options = python.BaseOptions(model_asset_path="pose_landmarker_full.task")
+options = vision.PoseLandmarkerOptions(
+    base_options=base_options, output_segmentation_masks=False
+)
+detector = vision.PoseLandmarker.create_from_options(options)
+print(detector)
 
 
 def create_local_tracks(play_from, decode):
@@ -114,7 +127,17 @@ class VideoTransformTrack(MediaStreamTrack):
             new_frame.time_base = frame.time_base
             return new_frame
         else:
-            return frame
+            img = mp.Image(
+                image_format=mp.ImageFormat.SRGB, data=frame.to_ndarray(format="bgr24")
+            )
+            detection_result = detector.detect(img)
+            annotated_image = draw_landmarks_on_image(
+                img.numpy_view(), detection_result
+            )
+            new_frame = VideoFrame.from_ndarray(annotated_image, format="bgr24")
+            new_frame.pts = frame.pts
+            new_frame.time_base = frame.time_base
+            return new_frame
 
 
 def force_codec(pc, sender, forced_codec):

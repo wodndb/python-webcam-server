@@ -8,6 +8,10 @@
 pip3 install -r requirements.txt
 ```
 
+또한 미디어파이프에서 사용할 모델을 다운로드받습니다.
+
+- [모델 배포 링크](https://developers.google.com/mediapipe/solutions/vision/pose_landmarker#configurations_options)
+
 ## 서버 실행
 
 ```
