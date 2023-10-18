@@ -18,6 +18,8 @@ log_level = getattr(logging, log_level)
 logger.setLevel(log_level)
 
 webcam = cv2.VideoCapture(0)
+webcam.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
 
 class StreamHandler:
